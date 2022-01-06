@@ -22,3 +22,12 @@ go get -u \
     google.golang.org/protobuf/cmd/protoc-gen-go \
     google.golang.org/grpc/cmd/protoc-gen-go-grpc
 ```
+### 5. buf 安装
+```shell
+brew tap bufbuild/buf
+brew install buf
+```
+运行
+```
+buf generate protos --debug
+```

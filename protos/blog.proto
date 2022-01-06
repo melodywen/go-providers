@@ -1,10 +1,15 @@
 syntax = "proto3";
 
+import "google/api/annotations.proto";
 option go_package = "./;golang";
-package gen;
+package golang;
 
 service Blog{
-  rpc Index(BlogIndexRequest) returns (BlogIndexResponse){}
+  rpc Index(BlogIndexRequest) returns (BlogIndexResponse){
+    option (google.api.http) = {
+      get: "/api/blog/index"
+    };
+  }
 }
 message BlogIndexRequest {
   int32 page = 1;

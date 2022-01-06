@@ -25,6 +25,6 @@ func (provider *GRpcServiceProvider) Boot() {
 func (provider *GRpcServiceProvider) Register() {
 	var grpc rpc.GrpcManagerInterface
 	provider.App.Alias("grpc-manager", &grpc)
-	provider.App.Instance("grpc-manager", NewGrpcManager())
+	provider.App.Instance("grpc-manager", NewGrpcManager(provider.App))
 	fmt.Println("grpc register")
 }
