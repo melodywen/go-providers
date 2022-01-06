@@ -18,13 +18,13 @@ func NewGRpcServiceProvider() *GRpcServiceProvider {
 
 // Boot Bootstrap any application services.
 func (provider *GRpcServiceProvider) Boot() {
-	fmt.Println("grpc boot")
 }
 
 // Register any application services.
 func (provider *GRpcServiceProvider) Register() {
 	var grpc rpc.GrpcManagerInterface
 	provider.App.Alias("grpc-manager", &grpc)
+	provider.App.Alias("grpc-manager", &GrpcManager{})
 	provider.App.Instance("grpc-manager", NewGrpcManager(provider.App))
 	fmt.Println("grpc register")
 }

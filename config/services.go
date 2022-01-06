@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/melodywen/go-box/illuminate/contracts/support"
+	"github.com/melodywen/go-providers/app/providers"
 	"github.com/melodywen/go-providers/illuminate/rpc"
 )
 
@@ -14,6 +15,7 @@ var DeferServices map[string]support.ServiceProviderInterface
 func init() {
 	EagerServices = []support.ServiceProviderInterface{
 		rpc.NewGRpcServiceProvider(),
+		providers.NewAppServiceProvider(),
 		//providers.NewSchoolServiceProvider(),
 	}
 	DeferServices = map[string]support.ServiceProviderInterface{

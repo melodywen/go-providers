@@ -1,12 +1,16 @@
 package rpc
 
 import (
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	runtime2 "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
 
 type GrpcManagerInterface interface {
-	NewServeMux(opts ...runtime.ServeMuxOption)
+	NewServer(opt ...grpc.ServerOption)
+	NewServeMux(opts ...runtime2.ServeMuxOption)
 	SetDialOption([]grpc.DialOption)
+	SetEndpoint(entrypoint string)
+	Init()
+	RegisterHandlerFromEndpoint(err error)
 	Run()
 }
