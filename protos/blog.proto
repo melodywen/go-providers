@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "./;golang";
+package gen;
+
+service Blog{
+  rpc Index(BlogIndexRequest) returns (BlogIndexResponse){}
+}
+message BlogIndexRequest {
+  int32 page = 1;
+  int32 size = 2;
+}
+message BlogIndexResponse {
+  int32 status = 1;
+}

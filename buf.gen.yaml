@@ -1,0 +1,11 @@
+version: v1
+plugins:
+  - name: go
+    out: servers/gen/golang
+    opt:
+      - paths=source_relative
+  - name: go-grpc
+    out: servers/gen/golang
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false

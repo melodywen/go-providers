@@ -3,6 +3,7 @@ package rpc
 import (
 	"fmt"
 	"github.com/melodywen/go-box/illuminate/support"
+	"github.com/melodywen/go-providers/illuminate/contracts/rpc"
 )
 
 // GRpcServiceProvider grpc struct
@@ -22,6 +23,8 @@ func (provider *GRpcServiceProvider) Boot() {
 
 // Register any application services.
 func (provider *GRpcServiceProvider) Register() {
+	var grpc rpc.GrpcManagerInterface
+	provider.App.Alias("grpc-manager", &grpc)
 	provider.App.Instance("grpc-manager", NewGrpcManager())
 	fmt.Println("grpc register")
 }
