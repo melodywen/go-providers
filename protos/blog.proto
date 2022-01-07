@@ -7,13 +7,16 @@ option go_package = "./;golang";
 
 
 service Blog{
-  rpc Index(BlogIndexRequest) returns (BlogIndexResponse){
+  rpc Index(BlogIndexRequest) returns ( BlogIndexResponse){
     option (google.api.http) = {
       get: "/api/blog"
     };
   }
-  rpc Store(BlogCreateRequest) returns (BlogIndexResponse){
-
+  rpc Store(model.BlogForm) returns (model.BlogModel){
+    option (google.api.http) = {
+      post: "/api/blog",
+      body:"*"
+    };
   }
   rpc Update(BlogIndexRequest) returns (BlogIndexResponse){
 
@@ -29,11 +32,11 @@ message BlogIndexRequest {
   int32 page = 1;
   int32 size = 2;
 }
+message BlogIndexResponse {
+ repeated model.BlogModel items=1;
+}
+
 message BlogCreateRequest {
   string title   = 1;
   string content = 2;
-}
-
-message BlogIndexResponse {
-  repeated model.blogModel data = 1;
 }

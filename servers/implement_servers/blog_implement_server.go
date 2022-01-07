@@ -2,16 +2,13 @@ package implement_servers
 
 import (
 	"context"
+	"fmt"
 	"github.com/melodywen/go-providers/servers/gen/golang"
 	"github.com/melodywen/go-providers/servers/gen/golang/model"
 	"math/rand"
 )
 
 type BlogImplementServer struct {
-}
-
-func (b BlogImplementServer) Store(ctx context.Context, request *golang.BlogCreateRequest) (*golang.BlogIndexResponse, error) {
-	panic("implement me")
 }
 
 func (b BlogImplementServer) Update(ctx context.Context, request *golang.BlogIndexRequest) (*golang.BlogIndexResponse, error) {
@@ -45,5 +42,15 @@ func mockBlogModel(size int) (response []*model.BlogModel) {
 
 func (b BlogImplementServer) Index(ctx context.Context, request *golang.BlogIndexRequest) (*golang.BlogIndexResponse, error) {
 	data := mockBlogModel(int(request.Size))
-	return &golang.BlogIndexResponse{Data: data}, nil
+	return &golang.BlogIndexResponse{Items: data}, nil
+}
+
+func (b BlogImplementServer) Store(ctx context.Context, form *model.BlogForm) (*model.BlogModel, error) {
+	fmt.Println(form)
+	data := mockBlogModel(1)
+	blog := data[0]
+	blog.Title = form.Title
+	blog.Describe = form.Describe
+	blog.Author = form.Author
+	return data[0], nil
 }
