@@ -1,0 +1,15 @@
+syntax = "proto3";
+option go_package = "github.com/melodywen/go-providers/servers/gen/golang/model";
+package model;
+
+message blogForm {
+
+}
+
+message blogModel {
+  int32  id       = 1;
+  string title    = 2;
+  string describe = 3;
+  string author   = 4;
+  int32 status   = 5;
+}
