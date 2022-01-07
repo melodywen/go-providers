@@ -11,9 +11,7 @@ import (
 type BlogImplementServer struct {
 }
 
-func (b BlogImplementServer) Update(ctx context.Context, request *golang.BlogIndexRequest) (*golang.BlogIndexResponse, error) {
-	panic("implement me")
-}
+
 
 func (b BlogImplementServer) Show(ctx context.Context, request *golang.BlogIndexRequest) (*golang.BlogIndexResponse, error) {
 	panic("implement me")
@@ -49,6 +47,17 @@ func (b BlogImplementServer) Store(ctx context.Context, form *model.BlogForm) (*
 	fmt.Println(form)
 	data := mockBlogModel(1)
 	blog := data[0]
+	blog.Title = form.Title
+	blog.Describe = form.Describe
+	blog.Author = form.Author
+	return data[0], nil
+}
+
+func (b BlogImplementServer) Update(ctx context.Context, form *model.BlogForm) (*model.BlogModel, error) {
+	fmt.Println(form)
+	data := mockBlogModel(1)
+	blog := data[0]
+	blog.Id = form.Id
 	blog.Title = form.Title
 	blog.Describe = form.Describe
 	blog.Author = form.Author

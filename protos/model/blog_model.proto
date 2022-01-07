@@ -3,6 +3,7 @@ option go_package = "github.com/melodywen/go-providers/servers/gen/golang/model"
 package model;
 
 message BlogForm {
+  int32 id       = 1;
   string title    = 2;
   string describe = 3;
   string author   = 4;

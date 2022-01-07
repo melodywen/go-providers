@@ -18,8 +18,11 @@ service Blog{
       body:"*"
     };
   }
-  rpc Update(BlogIndexRequest) returns (BlogIndexResponse){
-
+  rpc Update(model.BlogForm) returns (model.BlogModel){
+    option (google.api.http) = {
+      put: "/api/blog/{id}/update",
+      body:"*"
+    };
   }
   rpc Show(BlogIndexRequest) returns (BlogIndexResponse){
 
