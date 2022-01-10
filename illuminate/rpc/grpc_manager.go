@@ -2,11 +2,11 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 	runtime2 "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/melodywen/go-box/illuminate/contracts/bootstrap"
 	"github.com/melodywen/go-box/illuminate/contracts/foundation"
 	"github.com/melodywen/go-box/illuminate/contracts/log"
+	"github.com/melodywen/go-providers/illuminate/contracts/rpc"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
@@ -21,12 +21,14 @@ type GrpcManager struct {
 
 	isInit bool
 
-	ServerNux *runtime2.ServeMux
-	Opt       []grpc.DialOption
-	Endpoint  string
+	serverNux *runtime2.ServeMux
+	opt       []grpc.DialOption
+	endpoint  string
 	Ctx       context.Context
 
 	RpcServer *grpc.Server
+
+	registerHandlerFromEndpointSlice []rpc.RegisterHandlerFromEndpointFun
 }
 
 func NewGrpcManager(app foundation.ApplicationInterface) *GrpcManager {
@@ -37,7 +39,7 @@ func NewGrpcManager(app foundation.ApplicationInterface) *GrpcManager {
 		app:      app,
 		log:      app.Make(&logger).(log.LoggerInterface),
 		config:   app.Make(&config).(bootstrap.ConfigureInterface),
-		Endpoint: "",
+		endpoint: "",
 		Ctx:      context.Background(),
 	}
 
@@ -46,7 +48,7 @@ func NewGrpcManager(app foundation.ApplicationInterface) *GrpcManager {
 
 // NewServeMux 创建grpc-gateway服务，转发到grpc的9005端口
 func (manager *GrpcManager) NewServeMux(opts ...runtime2.ServeMuxOption) {
-	manager.ServerNux = runtime2.NewServeMux(opts...)
+	manager.serverNux = runtime2.NewServeMux(opts...)
 }
 
 // NewServer creates a gRPC server which has no service registered and has not
@@ -57,34 +59,39 @@ func (manager *GrpcManager) NewServer(opt ...grpc.ServerOption) {
 
 // SetDialOption  DialOption configures how we set up the connection.
 func (manager *GrpcManager) SetDialOption(opt []grpc.DialOption) {
-	manager.Opt = opt
+	manager.opt = opt
 }
 
 // SetEndpoint set entrypoint
 func (manager *GrpcManager) SetEndpoint(endpoint string) {
-	if endpoint == "" && manager.Endpoint == "" {
+	if endpoint == "" && manager.endpoint == "" {
 		endpoint = manager.config.GetString("grpc.server.endpoint")
 	}
-	if endpoint == "" && manager.Endpoint == "" {
+	if endpoint == "" && manager.endpoint == "" {
 		endpoint = ":8080"
 	}
-	manager.Endpoint = endpoint
+	manager.endpoint = endpoint
 }
 
 // Init init
 func (manager *GrpcManager) Init() {
 	manager.SetEndpoint("")
-	if manager.ServerNux == nil {
+	if manager.serverNux == nil {
 		manager.NewServeMux()
 	}
 	if manager.RpcServer == nil {
 		manager.NewServer()
 	}
 
-	if len(manager.Opt) == 0 {
+	if len(manager.opt) == 0 {
 		manager.SetDialOption([]grpc.DialOption{grpc.WithInsecure()})
 	}
 	manager.isInit = true
+}
+
+// SetRegisterHandlerFromEndpointCallbacks set register handler from endpoint
+func (manager *GrpcManager) SetRegisterHandlerFromEndpointCallbacks(callbacks []rpc.RegisterHandlerFromEndpointFun) {
+	manager.registerHandlerFromEndpointSlice = append(manager.registerHandlerFromEndpointSlice, callbacks...)
 }
 
 // RegisterHandlerFromEndpoint Register register grpc endpoint
@@ -99,11 +106,19 @@ func (manager *GrpcManager) Run() {
 	if !manager.isInit {
 		manager.log.Fatal("grpc manage please init", map[string]interface{}{})
 	}
-	fmt.Println(13123, manager.Endpoint)
+
+	// register grpc handler from endpoint
+	for _, fun := range manager.registerHandlerFromEndpointSlice {
+		manager.RegisterHandlerFromEndpoint(fun(manager.Ctx, manager.serverNux, manager.endpoint, manager.opt))
+		funName := manager.app.AbstractToString(fun)
+		manager.log.Info("register handler from endpoint ", map[string]interface{}{"name": funName})
+	}
+
+	manager.log.Info("grpc start success", map[string]interface{}{"endpoint": manager.endpoint})
 
 	err := http.ListenAndServe(
-		manager.Endpoint,
-		grpcHandlerFunc(manager.RpcServer, manager.ServerNux),
+		manager.endpoint,
+		grpcHandlerFunc(manager.RpcServer, manager.serverNux),
 	)
 	if err != nil {
 		manager.log.Fatal("listen server error", map[string]interface{}{"err": err})
